@@ -102,7 +102,7 @@ const Home = ({ user, logout }) => {
           messages: [message],
         };
         newConvo.latestMessageText = message.text;
-        setConversations([(prev) => [newConvo, ...prev]]);
+        setConversations((prev) => [newConvo, ...prev]);
       }
 
       conversations.forEach((convo) => {
