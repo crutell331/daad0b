@@ -112,7 +112,7 @@ const Home = ({ user, logout }) => {
           convo.latestMessageText = message.text;
         }
       });
-      setConversations(conversations);
+      setConversations([...conversations]);
     },
     [setConversations, conversations],
   );
