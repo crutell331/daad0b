@@ -1,4 +1,3 @@
-import pdb
 from django.contrib.auth.middleware import get_user
 from django.http import HttpResponse, JsonResponse
 from messenger_backend.models import Conversation, Message
