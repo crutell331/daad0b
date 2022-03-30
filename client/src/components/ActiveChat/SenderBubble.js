@@ -1,6 +1,7 @@
 import React from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import { Box, Typography } from '@material-ui/core';
+import ActiveChatAvatar from './ActiveChatAvatar';
 
 const useStyles = makeStyles(() => ({
   root: {
@@ -27,15 +28,20 @@ const useStyles = makeStyles(() => ({
   },
 }));
 
-const SenderBubble = ({ time, text }) => {
+const SenderBubble = ({ time, text, otherUserPhoto, read }) => {
   const classes = useStyles();
-
   return (
     <Box className={classes.root}>
       <Typography className={classes.date}>{time}</Typography>
       <Box className={classes.bubble}>
         <Typography className={classes.text}>{text}</Typography>
       </Box>
+      {
+        read ? (<ActiveChatAvatar 
+          photoUrl={otherUserPhoto}
+        />) : null
+      }
+      
     </Box>
   );
 };

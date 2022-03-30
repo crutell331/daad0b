@@ -17,12 +17,23 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-const Chat = ({ conversation, setActiveChat }) => {
+const Chat = ({ conversation, setActiveChat, user }) => {
   const classes = useStyles();
   const { otherUser } = conversation;
 
   const handleClick = async (conversation) => {
     await setActiveChat(conversation.otherUser.username);
+  };
+
+  const totalUnreadMessages = ()=>{
+    let total = 0
+    for (const message of conversation.messages) {
+      if (!message.read && user.id !== message.senderId) {
+        total++
+      }
+    }
+
+    return total
   };
 
   return (
@@ -34,6 +45,7 @@ const Chat = ({ conversation, setActiveChat }) => {
         sidebar={true}
       />
       <ChatContent conversation={conversation} />
+      {totalUnreadMessages() ? totalUnreadMessages() : null}
     </Box>
   );
 };
