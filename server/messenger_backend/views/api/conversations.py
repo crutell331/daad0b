@@ -1,3 +1,4 @@
+import pdb
 from django.contrib.auth.middleware import get_user
 from django.db.models import Max, Q
 from django.db.models.query import Prefetch
@@ -32,7 +33,6 @@ class Conversations(APIView):
             )
 
             conversations_response = []
-
             for convo in conversations:
                 convo_dict = {
                     "id": convo.id,

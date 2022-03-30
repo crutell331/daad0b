@@ -30,19 +30,19 @@ def seed():
     santiagoConvo.save()
 
     messages = Message(
-        conversation=santiagoConvo, senderId=santiago.id, text="Where are you from?"
+        conversation=santiagoConvo, senderId=santiago.id, text="Where are you from?", read=False
     )
     messages.save()
 
     messages = Message(
-        conversation=santiagoConvo, senderId=thomas.id, text="I'm from New York"
+        conversation=santiagoConvo, senderId=thomas.id, text="I'm from New York", read=False
     )
     messages.save()
 
     messages = Message(
         conversation=santiagoConvo,
         senderId=santiago.id,
-        text="Share photo of your city, please",
+        text="Share photo of your city, please", read=False
     )
     messages.save()
 
@@ -58,7 +58,7 @@ def seed():
     chiumboConvo.save()
 
     messages = Message(
-        conversation=chiumboConvo, senderId=chiumbo.id, text="Sure! What time?"
+        conversation=chiumboConvo, senderId=chiumbo.id, text="Sure! What time?", read=False
     )
     messages.save()
 
@@ -75,11 +75,11 @@ def seed():
 
     for i in range(10):
         messages = Message(
-            conversation=hualingConvo, senderId=hualing.id, text="a test message"
+            conversation=hualingConvo, senderId=hualing.id, text="a test message", read=False
         )
         messages.save()
 
-    messages = Message(conversation=hualingConvo, senderId=hualing.id, text="😂 😂 😂")
+    messages = Message(conversation=hualingConvo, senderId=hualing.id, text="😂 😂 😂",  read=False)
     messages.save()
 
     user = User(

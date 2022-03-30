@@ -1,3 +1,4 @@
+import pdb
 from django.contrib.auth.middleware import get_user
 from django.http import HttpResponse, JsonResponse
 from messenger_backend.models import Conversation, Message
@@ -42,7 +43,7 @@ class Messages(APIView):
                 if sender and sender["id"] in online_users:
                     sender["online"] = True
 
-            message = Message(senderId=sender_id, text=text, conversation=conversation)
+            message = Message(senderId=sender_id, text=text, conversation=conversation, read=False)
             message.save()
             message_json = message.to_dict()
             return JsonResponse({"message": message_json, "sender": sender})
