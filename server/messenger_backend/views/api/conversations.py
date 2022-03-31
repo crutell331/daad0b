@@ -69,3 +69,30 @@ class Conversations(APIView):
             )
         except Exception as e:
             return HttpResponse(status=500)
+
+
+    def patch(self, request):
+        conversation_id = request.data['conversationId']
+        user_id = request.data['userId']
+
+        conversation = Conversation.objects.get(pk=conversation_id)
+        user_messages = conversation.messages.filter(Q(senderId = user_id))
+
+        for message in user_messages:
+            message.read = True
+            message.save() 
+
+        convo_dict = {
+            "id": conversation.id,
+            "messages": [
+                message.to_dict(["id", "text", "senderId", "createdAt", "read"])
+                for message in conversation.messages.all()
+            ],
+        }
+
+        convo_dict["latestMessageText"] = convo_dict["messages"][0]["text"]
+
+        pdb.set_trace()
+        return JsonResponse(
+            convo_dict
+        )

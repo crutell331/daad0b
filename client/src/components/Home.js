@@ -198,6 +198,21 @@ const Home = ({ user, logout }) => {
     }
   };
 
+  const changeReadStatus = async (conversationId, userId)=>{
+    console.log("in change read status", conversationId)
+    console.log("change status", userId)
+    const data = {test: "test"}
+    // send patch request with conversation id and sender id
+    try {
+      const sample = await axios.patch("api/conversations", {conversationId, userId})
+      console.log("response", sample)
+    } catch (error) {
+      console.error(error)
+    }
+    // on backend we should find that conversation and ensure that every message sent by that user is marked read
+  };
+
+  console.log(conversations)
   return (
     <>
       <Button onClick={handleLogout}>Logout</Button>
@@ -209,6 +224,7 @@ const Home = ({ user, logout }) => {
           clearSearchedUsers={clearSearchedUsers}
           addSearchedUsers={addSearchedUsers}
           setActiveChat={setActiveChat}
+          changeReadStatus={changeReadStatus}
         />
         <ActiveChat
           activeConversation={activeConversation}

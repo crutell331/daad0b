@@ -17,12 +17,14 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-const Chat = ({ conversation, setActiveChat, user }) => {
+const Chat = ({ conversation, setActiveChat, user, changeReadStatus }) => {
   const classes = useStyles();
   const { otherUser } = conversation;
 
   const handleClick = async (conversation) => {
+    await changeReadStatus(conversation.id, user.id)
     await setActiveChat(conversation.otherUser.username);
+
   };
 
   const totalUnreadMessages = ()=>{
