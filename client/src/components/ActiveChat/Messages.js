@@ -9,8 +9,13 @@ const Messages = (props) => {
     <Box>
       {messages.map((message, index) => {
         const time = moment(message.createdAt).format('h:mm');
+
+        if(index === messages.length - 1){
+          return <SenderBubble key={message.id} text={message.text} time={time} index={index} otherUserPhoto={otherUser.photoUrl} read={message.read}/>
+        }
+
         return message.senderId === user.id ? (
-          <SenderBubble key={message.id} text={message.text} time={time} index={index} otherUserPhoto={otherUser.photoUrl} otherUsername={otherUser.username}/>
+          <SenderBubble key={message.id} text={message.text} time={time} />
         ) : (
           <OtherUserBubble
             key={message.id}

@@ -1,5 +1,5 @@
 import React from 'react';
-import { Box } from '@material-ui/core';
+import { Box, Badge } from '@material-ui/core';
 import { BadgeAvatar, ChatContent } from '../Sidebar';
 import { makeStyles } from '@material-ui/core/styles';
 
@@ -37,7 +37,7 @@ const Chat = ({ conversation, setActiveChat, user, changeReadStatus }) => {
       }
     }
 
-    return total
+    return total ? total : null
   };
 
   return (
@@ -49,7 +49,9 @@ const Chat = ({ conversation, setActiveChat, user, changeReadStatus }) => {
         sidebar={true}
       />
       <ChatContent conversation={conversation} />
-      {totalUnreadMessages() ? totalUnreadMessages() : null}
+      <Badge badgeContent={totalUnreadMessages()} color="primary">
+    </Badge>
+      
     </Box>
   );
 };
