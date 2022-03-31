@@ -73,10 +73,10 @@ class Conversations(APIView):
 
     def patch(self, request):
         conversation_id = request.data['conversationId']
-        user_id = request.data['userId']
-
+        other_user_id = request.data['otherUserId']
+        
         conversation = Conversation.objects.get(pk=conversation_id)
-        user_messages = conversation.messages.filter(Q(senderId = user_id))
+        user_messages = conversation.messages.filter(Q(senderId = other_user_id))
 
         for message in user_messages:
             message.read = True
@@ -92,7 +92,7 @@ class Conversations(APIView):
 
         convo_dict["latestMessageText"] = convo_dict["messages"][0]["text"]
 
-        pdb.set_trace()
+       
         return JsonResponse(
             convo_dict
         )

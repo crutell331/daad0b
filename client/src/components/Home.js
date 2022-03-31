@@ -198,13 +198,11 @@ const Home = ({ user, logout }) => {
     }
   };
 
-  const changeReadStatus = async (conversationId, userId)=>{
-    console.log("in change read status", conversationId)
-    console.log("change status", userId)
+  const changeReadStatus = async (conversationId, otherUserId)=>{
     const data = {test: "test"}
     // send patch request with conversation id and sender id
     try {
-      const sample = await axios.patch("api/conversations", {conversationId, userId})
+      const sample = await axios.patch("api/conversations", {conversationId, otherUserId})
       console.log("response", sample)
     } catch (error) {
       console.error(error)

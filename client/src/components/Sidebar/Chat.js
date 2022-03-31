@@ -22,9 +22,11 @@ const Chat = ({ conversation, setActiveChat, user, changeReadStatus }) => {
   const { otherUser } = conversation;
 
   const handleClick = async (conversation) => {
-    await changeReadStatus(conversation.id, user.id)
-    await setActiveChat(conversation.otherUser.username);
-
+    if (totalUnreadMessages()){
+      await changeReadStatus(conversation.id, otherUser.id)
+    }
+    
+    await setActiveChat(conversation.otherUser.username)
   };
 
   const totalUnreadMessages = ()=>{
