@@ -199,18 +199,22 @@ const Home = ({ user, logout }) => {
   };
 
   const changeReadStatus = async (conversationId, otherUserId)=>{
-    const data = {test: "test"}
-    // send patch request with conversation id and sender id
     try {
-      const sample = await axios.patch("api/conversations", {conversationId, otherUserId})
-      console.log("response", sample)
+      await axios.patch("api/conversations", {conversationId, otherUserId})   
+      let conversation = conversations.find((conversation) => conversation.id === conversationId )
+      
+      for (const message of conversation.messages) {
+        if (message.senderId === otherUserId){
+          message.read = true
+        }
+      }
+
+      setConversations([...conversations])
     } catch (error) {
       console.error(error)
     }
-    // on backend we should find that conversation and ensure that every message sent by that user is marked read
   };
 
-  console.log(conversations)
   return (
     <>
       <Button onClick={handleLogout}>Logout</Button>

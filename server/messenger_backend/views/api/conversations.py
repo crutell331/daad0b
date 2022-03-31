@@ -82,17 +82,6 @@ class Conversations(APIView):
             message.read = True
             message.save() 
 
-        convo_dict = {
-            "id": conversation.id,
-            "messages": [
-                message.to_dict(["id", "text", "senderId", "createdAt", "read"])
-                for message in conversation.messages.all()
-            ],
-        }
 
-        convo_dict["latestMessageText"] = convo_dict["messages"][0]["text"]
-
-       
-        return JsonResponse(
-            convo_dict
-        )
+        return HttpResponse(status=200)
+      
