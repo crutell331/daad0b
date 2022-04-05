@@ -78,10 +78,21 @@ class Conversations(APIView):
 
 
     def patch(self, request):
+
+        user = get_user(request)
+
+        if user.is_anonymous:
+            return HttpResponse(status=401)
+
+ 
         conversation_id = request.data['conversationId']
         other_user_id = request.data['otherUserId']
         
         conversation = Conversation.objects.get(pk=conversation_id)
+
+        if user.id != conversation.user1.id and user.id != conversation.user2.id:
+            return HttpResponse(status=403)
+
         user_messages = conversation.messages.filter(Q(senderId = other_user_id))
 
         objs = []
