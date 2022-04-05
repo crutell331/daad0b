@@ -84,10 +84,13 @@ class Conversations(APIView):
         conversation = Conversation.objects.get(pk=conversation_id)
         user_messages = conversation.messages.filter(Q(senderId = other_user_id))
 
+        objs = []
         for message in user_messages:
-            message.read = True
-            message.save() 
+            obj = message
+            obj.read = True
+            objs.append(obj)
 
+        Message.objects.bulk_update(objs, ['read'])
 
         return HttpResponse(status=204)
       
