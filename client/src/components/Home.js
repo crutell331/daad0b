@@ -18,7 +18,6 @@ const Home = ({ user, logout }) => {
   const history = useHistory();
 
   const socket = useContext(SocketContext);
-
   const [conversations, setConversations] = useState([]);
   const [activeConversation, setActiveConversation] = useState(null);
 
@@ -51,16 +50,51 @@ const Home = ({ user, logout }) => {
 
   const saveMessage = async (body) => {
     const { data } = await axios.post("/api/messages", body);
+    console.log("in save message", data)
     return data;
   };
 
   const sendMessage = (data, body) => {
+    console.log("in send message")
     socket.emit("new-message", {
       message: data.message,
       recipientId: body.recipientId,
       sender: data.sender,
     });
   };
+
+  const changeReadStatus =  useCallback( async (conversationId, otherUserId)=>{
+    try {
+      await axios.patch("api/conversations", {conversationId, otherUserId})
+
+      sendUpdate(conversationId, otherUserId)
+    } catch (error) {
+      console.error(error)
+    }
+  }, [conversations]);
+
+const sendUpdate = (conversationId, otherUserId, userId)=>{
+  socket.emit("read-message", {
+    conversationId,
+    otherUserId,
+    userId,
+  })
+}
+
+const editMessages = (data)=>{
+
+  let newConversations = [...conversations]
+  let convo = newConversations.find(convo => convo.id === data.conversationId)
+
+  for (let message of convo.messages){
+    if(message.senderId === data.otherUserId){
+      message.read = true
+    }
+
+  convo.lastReadMessage = data.lastReadMessage
+  setConversations([...conversations])
+  }
+}
 
   const postMessage = async (body) => {
     try {
@@ -70,7 +104,8 @@ const Home = ({ user, logout }) => {
       } else {
         addMessageToConversation(data);
       }
-
+      
+    
       sendMessage(data, body);
     } catch (error) {
       console.error(error);
@@ -111,7 +146,7 @@ const Home = ({ user, logout }) => {
           convo.latestMessageText = message.text;
         }
       });
-      setConversations([...conversations]);
+      setConversations(()=> [...conversations]);
     },
     [setConversations, conversations],
   );
@@ -148,6 +183,8 @@ const Home = ({ user, logout }) => {
     );
   }, []);
 
+
+
   // Lifecycle
 
   useEffect(() => {
@@ -155,6 +192,7 @@ const Home = ({ user, logout }) => {
     socket.on("add-online-user", addOnlineUser);
     socket.on("remove-offline-user", removeOfflineUser);
     socket.on("new-message", addMessageToConversation);
+    socket.on("read-message", editMessages);
 
     return () => {
       // before the component is destroyed
@@ -162,8 +200,9 @@ const Home = ({ user, logout }) => {
       socket.off("add-online-user", addOnlineUser);
       socket.off("remove-offline-user", removeOfflineUser);
       socket.off("new-message", addMessageToConversation);
+      socket.off("read-message", editMessages);
     };
-  }, [addMessageToConversation, addOnlineUser, removeOfflineUser, socket]);
+  }, [addMessageToConversation, addOnlineUser, removeOfflineUser, editMessages, socket]);
 
   useEffect(() => {
     // when fetching, prevent redirect
@@ -198,23 +237,7 @@ const Home = ({ user, logout }) => {
     }
   };
 
-  const changeReadStatus = async (conversationId, otherUserId)=>{
-    try {
-      await axios.patch("api/conversations", {conversationId, otherUserId})   
-      let conversation = conversations.find((conversation) => conversation.id === conversationId )
-      
-      for (const message of conversation.messages) {
-        if (message.senderId === otherUserId){
-          message.read = true
-        }
-      }
-
-      setConversations([...conversations])
-    } catch (error) {
-      console.error(error)
-    }
-  };
-
+  console.log("right before render", conversations)
   return (
     <>
       <Button onClick={handleLogout}>Logout</Button>

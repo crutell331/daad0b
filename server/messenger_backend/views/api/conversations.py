@@ -34,16 +34,21 @@ class Conversations(APIView):
 
             conversations_response = []
             for convo in conversations:
+                lastReadMessage = None
+                
+                # retrieve last message sent by user that was read and add to dictionary otherwise None
+                if convo.messages.all().filter(Q(read=True) & Q(senderId=user.id)).last(): lastReadMessage = convo.messages.all().filter(Q(read=True) & Q(senderId=user.id)).last().id
                 convo_dict = {
                     "id": convo.id,
                     "messages": [
                         message.to_dict(["id", "text", "senderId", "createdAt", "read"])
                         for message in convo.messages.all()
                     ],
+                    "lastReadMessage": lastReadMessage
                 }
 
                 # set properties for notification count and latest message preview
-                convo_dict["latestMessageText"] = convo_dict["messages"][0]["text"]
+                convo_dict["latestMessageText"] = convo_dict["messages"][-1]["text"]
 
                 # set a property "otherUser" so that frontend will have easier access
                 user_fields = ["id", "username", "photoUrl"]
@@ -59,6 +64,7 @@ class Conversations(APIView):
                     convo_dict["otherUser"]["online"] = False
 
                 conversations_response.append(convo_dict)
+
             conversations_response.sort(
                 key=lambda convo: convo["messages"][0]["createdAt"],
                 reverse=True,
