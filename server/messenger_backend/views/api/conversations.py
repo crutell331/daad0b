@@ -89,5 +89,5 @@ class Conversations(APIView):
             message.save() 
 
 
-        return HttpResponse(status=200)
+        return HttpResponse(status=204)
       
