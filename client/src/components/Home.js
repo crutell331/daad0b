@@ -50,7 +50,6 @@ const Home = ({ user, logout }) => {
 
   const saveMessage = async (body) => {
     const { data } = await axios.post("/api/messages", body);
-    console.log("in save message", data)
     return data;
   };
 
@@ -102,7 +101,6 @@ const editMessages = (data)=>{
       if (!body.conversationId) {
         addNewConvo(body.recipientId, data.message);
       } else {
-        console.log("in here")
         addMessageToConversation(data);
       }
       
@@ -145,8 +143,6 @@ const editMessages = (data)=>{
         });
       }
 
-      console.log("data", user.id)
-      console.log("data", data)
 
       conversations.forEach((convo) => {
         if (convo.id === message.conversationId) {
@@ -248,7 +244,6 @@ const editMessages = (data)=>{
     }
   };
 
-  console.log("right before render", conversations)
   return (
     <>
       <Button onClick={handleLogout}>Logout</Button>
