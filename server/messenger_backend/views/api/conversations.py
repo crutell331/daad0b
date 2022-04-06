@@ -44,7 +44,7 @@ class Conversations(APIView):
                         message.to_dict(["id", "text", "senderId", "createdAt", "read"])
                         for message in convo.messages.all()
                     ],
-                    "lastReadMessage": lastReadMessage
+                    "lastReadMessage": lastReadMessage,
                 }
 
                 # set properties for notification count and latest message preview
@@ -62,6 +62,9 @@ class Conversations(APIView):
                     convo_dict["otherUser"]["online"] = True
                 else:
                     convo_dict["otherUser"]["online"] = False
+
+                totalUnread = convo.messages.all().filter(Q(read=False) & Q(senderId=convo_dict["otherUser"]["id"])).count()
+                convo_dict["totalUnread"] = totalUnread
 
                 conversations_response.append(convo_dict)
 

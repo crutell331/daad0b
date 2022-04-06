@@ -22,22 +22,11 @@ const Chat = ({ conversation, setActiveChat, user, changeReadStatus }) => {
   const { otherUser } = conversation;
 
   const handleClick = async (conversation) => {
-    if (totalUnreadMessages()){
+    if (conversation.totalUnread){
       await changeReadStatus(conversation.id, otherUser.id)
     }
     
     await setActiveChat(conversation.otherUser.username)
-  };
-
-  const totalUnreadMessages = ()=>{
-    let total = 0
-    for (const message of conversation.messages) {
-      if (!message.read && user.id !== message.senderId) {
-        total++
-      }
-    }
-
-    return total ? total : null
   };
 
   return (
@@ -48,8 +37,8 @@ const Chat = ({ conversation, setActiveChat, user, changeReadStatus }) => {
         online={otherUser.online}
         sidebar={true}
       />
-      <ChatContent conversation={conversation} unread={totalUnreadMessages()}/>
-      <Badge badgeContent={totalUnreadMessages()} color="primary">
+      <ChatContent conversation={conversation} unread={conversation.totalUnread}/>
+      <Badge badgeContent={conversation.totalUnread} color="primary">
     </Badge>
       
     </Box>

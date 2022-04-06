@@ -55,7 +55,6 @@ const Home = ({ user, logout }) => {
   };
 
   const sendMessage = (data, body) => {
-    console.log("in send message")
     socket.emit("new-message", {
       message: data.message,
       recipientId: body.recipientId,
@@ -92,6 +91,7 @@ const editMessages = (data)=>{
     }
 
   convo.lastReadMessage = data.lastReadMessage
+  convo.totalUnread = 0
   setConversations([...conversations])
   }
 }
@@ -102,6 +102,7 @@ const editMessages = (data)=>{
       if (!body.conversationId) {
         addNewConvo(body.recipientId, data.message);
       } else {
+        console.log("in here")
         addMessageToConversation(data);
       }
       
@@ -130,20 +131,30 @@ const editMessages = (data)=>{
     (data) => {
       // if sender isn't null, that means the message needs to be put in a brand new convo
       const { message, sender = null } = data;
+      // console.log(data)
       if (sender !== null) {
         const newConvo = {
           id: message.conversationId,
           otherUser: sender,
           messages: [message],
         };
+     
         newConvo.latestMessageText = message.text;
-        setConversations((prev) => [newConvo, ...prev]);
+        setConversations((prev) =>{ 
+          return [newConvo, ...prev]
+        });
       }
+
+      console.log("data", user.id)
+      console.log("data", data)
 
       conversations.forEach((convo) => {
         if (convo.id === message.conversationId) {
           convo.messages = [...convo.messages, message];
           convo.latestMessageText = message.text;
+          if(data.message.senderId !== user.id){
+            convo.totalUnread += 1
+          } 
         }
       });
       setConversations(()=> [...conversations]);
