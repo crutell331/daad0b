@@ -87,6 +87,11 @@ class Conversations(APIView):
         other_user_id = request.data['otherUserId']
         
         conversation = Conversation.objects.get(pk=conversation_id)
+
+        # if logged in user is neither of the users associated with the conversation throw error
+        if user.id != conversation.user1.id and user.id != conversation.user2.id:
+            return HttpResponse(status=403)
+
         user_messages = conversation.messages.filter(Q(senderId = other_user_id))
 
         objs = []
