@@ -78,6 +78,11 @@ class Conversations(APIView):
 
 
     def patch(self, request):
+        user = get_user(request)
+
+        if user.is_anonymous:
+            return HttpResponse(status=401)
+
         conversation_id = request.data['conversationId']
         other_user_id = request.data['otherUserId']
         
