@@ -26,7 +26,7 @@ class Messages(APIView):
             if conversation_id:
                 conversation = Conversation.objects.filter(id=conversation_id).first()
                 message = Message(
-                    senderId=sender_id, text=text, conversation=conversation
+                    senderId=sender_id, text=text, conversation=conversation, read=False
                 )
                 message.save()
                 message_json = message.to_dict()
@@ -42,7 +42,7 @@ class Messages(APIView):
                 if sender and sender["id"] in online_users:
                     sender["online"] = True
 
-            message = Message(senderId=sender_id, text=text, conversation=conversation)
+            message = Message(senderId=sender_id, text=text, conversation=conversation, read=False)
             message.save()
             message_json = message.to_dict()
             return JsonResponse({"message": message_json, "sender": sender})

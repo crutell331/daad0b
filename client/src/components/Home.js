@@ -18,7 +18,6 @@ const Home = ({ user, logout }) => {
   const history = useHistory();
 
   const socket = useContext(SocketContext);
-
   const [conversations, setConversations] = useState([]);
   const [activeConversation, setActiveConversation] = useState(null);
 
@@ -62,6 +61,40 @@ const Home = ({ user, logout }) => {
     });
   };
 
+  const changeReadStatus =  useCallback( async (conversationId, otherUserId)=>{
+    try {
+      await axios.patch("api/conversations", {conversationId, otherUserId})
+
+      sendUpdate(conversationId, otherUserId)
+    } catch (error) {
+      console.error(error)
+    }
+  }, [conversations]);
+
+const sendUpdate = (conversationId, otherUserId, userId)=>{
+  socket.emit("read-message", {
+    conversationId,
+    otherUserId,
+    userId,
+  })
+}
+
+const editMessages = (data)=>{
+
+  let newConversations = [...conversations]
+  let convo = newConversations.find(convo => convo.id === data.conversationId)
+
+  for (let message of convo.messages){
+    if(message.senderId === data.otherUserId){
+      message.read = true
+    }
+
+  convo.lastReadMessage = data.lastReadMessage
+  convo.totalUnread = 0
+  setConversations([...conversations])
+  }
+}
+
   const postMessage = async (body) => {
     try {
       const data = await saveMessage(body);
@@ -70,7 +103,8 @@ const Home = ({ user, logout }) => {
       } else {
         addMessageToConversation(data);
       }
-
+      
+    
       sendMessage(data, body);
     } catch (error) {
       console.error(error);
@@ -95,23 +129,31 @@ const Home = ({ user, logout }) => {
     (data) => {
       // if sender isn't null, that means the message needs to be put in a brand new convo
       const { message, sender = null } = data;
+      // console.log(data)
       if (sender !== null) {
         const newConvo = {
           id: message.conversationId,
           otherUser: sender,
           messages: [message],
         };
+     
         newConvo.latestMessageText = message.text;
-        setConversations((prev) => [newConvo, ...prev]);
+        setConversations((prev) =>{ 
+          return [newConvo, ...prev]
+        });
       }
+
 
       conversations.forEach((convo) => {
         if (convo.id === message.conversationId) {
           convo.messages = [...convo.messages, message];
           convo.latestMessageText = message.text;
+          if(data.message.senderId !== user.id){
+            convo.totalUnread += 1
+          } 
         }
       });
-      setConversations([...conversations]);
+      setConversations(()=> [...conversations]);
     },
     [setConversations, conversations],
   );
@@ -148,6 +190,8 @@ const Home = ({ user, logout }) => {
     );
   }, []);
 
+
+
   // Lifecycle
 
   useEffect(() => {
@@ -155,6 +199,7 @@ const Home = ({ user, logout }) => {
     socket.on("add-online-user", addOnlineUser);
     socket.on("remove-offline-user", removeOfflineUser);
     socket.on("new-message", addMessageToConversation);
+    socket.on("read-message", editMessages);
 
     return () => {
       // before the component is destroyed
@@ -162,8 +207,9 @@ const Home = ({ user, logout }) => {
       socket.off("add-online-user", addOnlineUser);
       socket.off("remove-offline-user", removeOfflineUser);
       socket.off("new-message", addMessageToConversation);
+      socket.off("read-message", editMessages);
     };
-  }, [addMessageToConversation, addOnlineUser, removeOfflineUser, socket]);
+  }, [addMessageToConversation, addOnlineUser, removeOfflineUser, editMessages, socket]);
 
   useEffect(() => {
     // when fetching, prevent redirect
@@ -209,12 +255,14 @@ const Home = ({ user, logout }) => {
           clearSearchedUsers={clearSearchedUsers}
           addSearchedUsers={addSearchedUsers}
           setActiveChat={setActiveChat}
+          changeReadStatus={changeReadStatus}
         />
         <ActiveChat
           activeConversation={activeConversation}
           conversations={conversations}
           user={user}
           postMessage={postMessage}
+          changeReadStatus={changeReadStatus}
         />
       </Grid>
     </>

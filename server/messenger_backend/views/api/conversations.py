@@ -1,3 +1,4 @@
+import pdb
 from django.contrib.auth.middleware import get_user
 from django.db.models import Max, Q
 from django.db.models.query import Prefetch
@@ -32,18 +33,22 @@ class Conversations(APIView):
             )
 
             conversations_response = []
-
             for convo in conversations:
+                lastReadMessage = None
+                
+                # retrieve last message sent by user that was read and add to dictionary otherwise None
+                if convo.messages.all().filter(Q(read=True) & Q(senderId=user.id)).last(): lastReadMessage = convo.messages.all().filter(Q(read=True) & Q(senderId=user.id)).last().id
                 convo_dict = {
                     "id": convo.id,
                     "messages": [
-                        message.to_dict(["id", "text", "senderId", "createdAt"])
+                        message.to_dict(["id", "text", "senderId", "createdAt", "read"])
                         for message in convo.messages.all()
                     ],
+                    "lastReadMessage": lastReadMessage,
                 }
 
                 # set properties for notification count and latest message preview
-                convo_dict["latestMessageText"] = convo_dict["messages"][0]["text"]
+                convo_dict["latestMessageText"] = convo_dict["messages"][-1]["text"]
 
                 # set a property "otherUser" so that frontend will have easier access
                 user_fields = ["id", "username", "photoUrl"]
@@ -58,7 +63,11 @@ class Conversations(APIView):
                 else:
                     convo_dict["otherUser"]["online"] = False
 
+                totalUnread = convo.messages.all().filter(Q(read=False) & Q(senderId=convo_dict["otherUser"]["id"])).count()
+                convo_dict["totalUnread"] = totalUnread
+
                 conversations_response.append(convo_dict)
+
             conversations_response.sort(
                 key=lambda convo: convo["messages"][0]["createdAt"],
                 reverse=True,
@@ -69,3 +78,32 @@ class Conversations(APIView):
             )
         except Exception as e:
             return HttpResponse(status=500)
+
+
+    def patch(self, request):
+        user = get_user(request)
+
+        if user.is_anonymous:
+            return HttpResponse(status=401)
+
+        conversation_id = request.data['conversationId']
+        other_user_id = request.data['otherUserId']
+        
+        conversation = Conversation.objects.get(pk=conversation_id)
+
+        # if logged in user is neither of the users associated with the conversation throw error
+        if user.id != conversation.user1.id and user.id != conversation.user2.id:
+            return HttpResponse(status=403)
+
+        user_messages = conversation.messages.filter(Q(senderId = other_user_id))
+
+        objs = []
+        for message in user_messages:
+            obj = message
+            obj.read = True
+            objs.append(obj)
+
+        Message.objects.bulk_update(objs, ['read'])
+
+        return HttpResponse(status=204)
+      
