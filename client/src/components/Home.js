@@ -262,6 +262,7 @@ const editMessages = (data)=>{
           conversations={conversations}
           user={user}
           postMessage={postMessage}
+          changeReadStatus={changeReadStatus}
         />
       </Grid>
     </>

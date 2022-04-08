@@ -24,6 +24,7 @@ const ActiveChat = ({
   conversations,
   activeConversation,
   postMessage,
+  changeReadStatus,
 }) => {
   const classes = useStyles();
 
@@ -37,6 +38,22 @@ const ActiveChat = ({
     return obj !== {} && obj !== undefined;
   };
 
+  const readMessages = ()=>{
+    if(anyUnread()){
+      changeReadStatus(conversation.id, conversation.otherUser.id)
+    }
+  }
+
+  const anyUnread = ()=>{
+    for (let message of conversation.messages){
+      if(message.senderId === conversation.otherUser.id && message.read === false){
+        return true
+      }
+    }
+
+    return false
+  }
+
   return (
     <Box className={classes.root}>
       {isConversation(conversation) && conversation.otherUser && (
@@ -46,6 +63,7 @@ const ActiveChat = ({
             online={conversation.otherUser.online || false}
           />
           <Box className={classes.chatContainer}>
+            {readMessages()}
             {user && (
               <>
                 <Messages

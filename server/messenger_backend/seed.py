@@ -4,7 +4,7 @@ from messenger_backend.models import User, Conversation, Message
 
 def seed():
     print("db synced!")
-    User.objects.all().delete()
+    # User.objects.all().delete()
     Conversation.objects.all().delete()
     Message.objects.all().delete()
 
